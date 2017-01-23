@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Kevin KERAUDREN - Artificial Vision</title>
+
+  <style type="text/css">
+  </style>
+
+<script src="data_bones/average.js" language="javascript"></script>
+<script src="data_bones/eigenvectors.js" language="javascript"></script>
+  <script type="text/javascript">
+
+  var eigenvalues = [ 0.00441504,
+                      0.000359752,
+                      0.000134257,
+                      6.66858e-05, 
+                      5.52636e-05, 
+                      3.68984e-05, 
+                      2.00641e-05, 
+                      1.79516e-05, 
+                      1.25233e-05, 
+                      1.04717e-05 ];
+  var coeff = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
+  var image = [];
+  var scaling_factor = 300;
+
+  function draw(){
+
+    var canvas = document.getElementById('dessin');
+
+    if (canvas.getContext){
+
+      for ( var i = 0; i < average.length; i++ ) {
+        image[i] = average[i];
+        for ( var n = 0; n < coeff.length; n++ ) {
+          image[i] +=  coeff[n] * 3 * Math.sqrt( eigenvalues[n] ) / 5 * eigenvectors[n][i];
+         }
+      }      
+
+      var ctx = canvas.getContext('2d');
+      var x_max = -1000, y_max = -1000, x_min = 1000, y_min = 1000;
+
+      for ( var i = 0; i < average.length/2; i++ ) {
+        if ( image[2*i] < x_min ) {
+          x_min = image[2*i];
+        }
+        if ( image[2*i] > x_max ) {
+          x_max = image[2*i];
+        }
+        if ( image[2*i + 1] < y_min ) {
+          y_min = image[2*i + 1];
+        }
+        if ( image[2*i + 1] > y_max ) {
+          y_max = image[2*i + 1];
+        }
+      }
+
+      for ( var i = 0; i < average.length/2; i++ ) {
+        image[2*i] = scaling_factor * ( image[2*i] - x_min );
+        image[2*i +1] = scaling_factor * ( image[2*i + 1] - y_min );
+      }
+
+      // clear before drawing
+      ctx.clearRect(0,0,150,150);
+
+      // drawing code :
+      ctx.beginPath();
+      ctx.moveTo( image[0], image[1] );
+
+      for ( var i = 0; i < average.length/2; i++ ) {
+        ctx.lineTo( image[2*i], image[2*i + 1]);
+      }
+
+      ctx.closePath();
+      ctx.stroke();  
+
+    }
+    else {
+      // canvas-unsupported code :
+      document.getElementById('unsupport_canvas').innerHTML = "Votre navigateur web semble ne pas supporter les canvas : écrivez moi un mail !";
+    }
+  } 
+
+  function increase_coeff(n) {
+    if ( coeff[n] < 5) {
+      coeff[n]++;
+      document.getElementById('button' + n).innerHTML = ' ' + coeff[n] + ' ';
+      draw();
+    }
+  }
+
+  function decrease_coeff(n) {
+    if ( coeff[n] > -5) {
+      coeff[n]--;
+      document.getElementById('button' + n).innerHTML = ' ' + coeff[n] + ' ';
+      draw();
+    }
+  }
+  </script>
+
+</head>
+<body onload="draw();">
+
+<table border="1" cellpadding="0" cellspacing="0">
+  <tbody>
+    <tr>
+      <td align="center" width="100">
+
+<button type="button" onclick="decrease_coeff(0);"><</button><b id="button0"> 0 </b>
+<button type="button" onclick="increase_coeff(0);">></button><br>
+
+<button type="button" onclick="decrease_coeff(1);"><</button><b id="button1"> 0 </b>
+<button type="button" onclick="increase_coeff(1);">></button><br>
+
+<button type="button" onclick="decrease_coeff(2);"><</button><b id="button2"> 0 </b>
+<button type="button" onclick="increase_coeff(2);">></button><br>
+
+<button type="button" onclick="decrease_coeff(3);"><</button><b id="button3"> 0 </b>
+<button type="button" onclick="increase_coeff(3);">></button><br>
+
+<button type="button" onclick="decrease_coeff(4);"><</button><b id="button4"> 0 </b>
+<button type="button" onclick="increase_coeff(4);">></button><br>
+
+<button type="button" onclick="decrease_coeff(5);"><</button><b id="button5"> 0 </b>
+<button type="button" onclick="increase_coeff(5);">></button><br>
+
+<button type="button" onclick="decrease_coeff(6);"><</button><b id="button6"> 0 </b>
+<button type="button" onclick="increase_coeff(6);">></button><br>
+
+<button type="button" onclick="decrease_coeff(7);"><</button><b id="button7"> 0 </b>
+<button type="button" onclick="increase_coeff(7);">></button><br>
+
+<button type="button" onclick="decrease_coeff(8);"><</button><b id="button8"> 0 </b>
+<button type="button" onclick="increase_coeff(8);">></button><br>
+
+<button type="button" onclick="decrease_coeff(9);"><</button><b id="button9"> 0 </b>
+<button type="button" onclick="increase_coeff(9);">></button><br>
+
+      </td>
+      <td align="center" width="300">
+  <canvas id="dessin" width="150" height="150"></canvas>  
+  <div id="unsupport_canvas"></div><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+</body>
+</html>

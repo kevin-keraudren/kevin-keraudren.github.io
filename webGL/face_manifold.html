@@ -1,0 +1,52 @@
+<html>
+
+  <head>
+    <title>WebGL - Face Manifold Point Cloud</title> 
+    <script src="xbps.js"></script>
+    <script src="xbPointstream.js"></script>
+ 
+  <script type="text/javascript"> 
+ 
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22283315-1']);
+  _gaq.push(['_trackPageview']);
+ 
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+ 
+  </script> 
+  </head>
+
+  <body onLoad="start('clouds/google_equalized_PCA_projected.pts','canvas',-100);"
+        style="font-family: Arial;">
+
+    <a href="http://www.doc.ic.ac.uk/~kpk09/">Back to homepage</a><br>
+    
+    <center>
+          
+<h1>Face Manifold Point Cloud</h1>
+
+      <canvas id="canvas" width="800" height="600"></canvas>
+
+      
+      <br>Invert scroll wheel: <input type="checkbox" id="invertScroll" /><br>
+<br>
+
+    This is a visualization of a result from
+    the <a href="http://www.doc.ic.ac.uk/~kpk09/facecrumbs.html" >Facecrumbs
+    Project</a>. Starting from a 1M face database, this is the 3D projection of
+    427 807 faces, after dimensionality reduction using Manifold
+    Learning. <br>
+The color, from blue to red, shows the main direction (first coordinates sorted
+    in increasing order).
+<br>
+<a href="http://www.doc.ic.ac.uk/~kpk09/facecrumbs_results/1M_manifold_matlab_PCA_200.jpg">Here</a>
+    is a 2D projection, displaying the actual faces.
+    </center>
+
+  </body>
+
+</html>

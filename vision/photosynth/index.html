@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+  <title>Kevin KERAUDREN - Artificial Vision</title>
+
+  <link type="text/css" rel="stylesheet" href="http://www.doc.ic.ac.uk/~kpk09/style.css">
+
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22283315-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+  </script>
+  
+</head>
+<body>
+  <a href="http://www.doc.ic.ac.uk/~kpk09/">Back to homepage</a><br>
+      <center><h1>Photosynth.net</h1></center>
+      &nbsp;&nbsp;&nbsp; <a href="http://photosynth.net/">Photosynth</a> is a cool Microsoft
+      website to browse your photo collection in 3D. It is based on a work from  a
+      research team of the University of Washington and Microsoft Research:
+      <a href="http://phototour.cs.washington.edu/">Photo Tourism</a>.<br>
+      <br>
+      &nbsp;&nbsp;&nbsp; All papers published by this team are freely availble on the web, as well
+      as part of their code: <a href="http://phototour.cs.washington.edu/bundler/">Bundler</a>.<br><br>
+
+      &nbsp;&nbsp;&nbsp; Using <a href="flickr.pl">this script</a>, I fetched 82 original pictures
+      from Flickr (original so that we have their EXIF tags, as well as high
+      quality), then let bundler run for a day. In the end, I obtained the
+      recovered camera parameters for most of these photos, as well as this
+      amazing point cloud:<br><br>
+
+      <center><img src="coliseum_points.png" alt="Cloud of point for the Coliseum" style="width: 800px;"/><br>
+      <i>( here is a <a href="plyreader4bundler.tcl">PLY reader for VTK</a> I wrote
+      especially for Bundler )</i><br></center>
+      <br>
+
+      &nbsp;&nbsp;&nbsp; You can view this point cloud in your browser using WebGL <a href="http://www.doc.ic.ac.uk/~kpk09/webGL/coliseum.html">here</a>.<br><br>
+
+      &nbsp;&nbsp;&nbsp; I coded a simple <a href="vtkBundlerReader.py">
+      VTK/Python viewer</a> for the Bundler output inspired from a
+      <a href="http://hdl.handle.net/10380/3153">viewer for the Voodoo
+      output</a> written by D. Doria.
+      <a href="http://code.google.com/p/pixelstruct/">PixelStruct</a>
+      is a viewer for the Bundler output worth mentionning as it places the
+      images in the average plane of the observed points.
+      <br><br>
+
+        &nbsp;&nbsp;&nbsp; Once we have recovered the set of parameters for our images, we can run
+        the <a href="http://grail.cs.washington.edu/software/cmvs/">CMVS/PMVS
+        softwares</a> to obtain a cloud points with normals (which took one more
+        day on my laptop), then we
+        can do a Poisson reconstruction in Meshlab:<br><br>
+      
+      <center><img src="coliseum_surface.png" alt="Reconstructed surface of the
+      Coliseum" style="width: 800px;"/></center>
+
+<br><br>
+
+&nbsp;&nbsp;&nbsp; I merged the Bundler/PMVS/CMVS scripts (RunBundler.sh,prep pmvs.sh and CMVS and PMVS commands) into <a href="run_bundler.sh">one single file</a>.
+
+<br>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  <title>Facecrumbs Project</title>
+
+  <meta name="description" content="Imperial student project on Large-Scale
+                                    Manifold Learning" />
+  <meta name="keywords" content="facecrumbs, large-scale, manifold learning, face manifold,
+                                 opencv, webgl, manifold" />
+  
+  <script type="text/javascript" src="lightbox2.05/js/prototype.js"></script>
+  <script type="text/javascript" src="lightbox2.05/js/scriptaculous.js?load=effects,builder"></script>
+  <script type="text/javascript" src="lightbox2.05/js/lightbox.js"></script>
+
+  <link rel="stylesheet" href="lightbox2.05/css/lightbox.css" type="text/css" media="screen"
+  />
+
+  <link type="text/css" rel="stylesheet" href="http://www.doc.ic.ac.uk/~kpk09/style.css"> 
+
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22283315-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+  </script>
+  
+</head>
+<body>
+  <a href="http://www.doc.ic.ac.uk/~kpk09/">Back to homepage</a><br>
+
+  <center><h1>Facecrumbs</h1></center>
+  <center><i>Kevin KERAUDREN,
+Joan ALABORT,
+Laurent SIGAL,
+Alexandru VOICU,
+Peng XIAO
+</i>
+<br><br>
+<b>Some related code is available on <a href="https://github.com/kevin-keraudren/code">github</a>.</b>
+  </center><br><br>
+
+  &nbsp;&nbsp;&nbsp;In 2008, a team of researcher from Google published this paper
+  on <a href="http://research.google.com/pubs/pub34395.html">Large-Scale
+  Manifold Learning</a>. It was followed in 2010 by an Orkut application that
+  finds a path on the "Face Manifold",
+  described on the <a href="http://googleresearch.blogspot.com/2010/03/hopping-on-face-manifold-via-people.html">GoogleResearch blog</a>.
+  <br><br>
+  &nbsp;&nbsp;&nbsp;Imperial teachers thought it was a cool subject and gave it as a group project
+  for 5 students, between january 2011 and mid-March 2011.
+  <br><br>
+  &nbsp;&nbsp;&nbsp;We decided to work on a 1M face database, homemade, mummy was a Perl crawler
+  based on the CPAN
+  module <a href="http://search.cpan.org/~grousse/WWW-Google-Images-0.6.5/lib/WWW/Google/Images.pm">WWW::Google::Images</a>,
+  and daddy was the OpenCV-2.2 face detector. Also we were given access to
+  monster machines with 64Gb of RAM and 24 CPUs, wich allowed us to slurp 15G of
+  images into memory in 2 minutes, using the
+  lovely <a href="http://threadingbuildingblocks.org/">TBB library</a>.
+
+  <br><br>
+&nbsp;&nbsp;&nbsp; As stated on Google's blog, the two keys to large-scale
+  Manifold Learning are Spilltrees for approximate nearest neighbours, and the
+  Nystrom method for approximate Isomap. We used the OpenCV-2.2 spilltrees,
+  applying this <a href="facecrumbs_results/spilltree.diff">patch</a> to make them
+thread-safe (otherwise they were using one single cache for the whole tree, as
+well as storing temporary results in the leaves), and therefore usable with TBB.
+We wrote the Nystrom-Isomap code
+using OpenCV for the linear Algebra.
+  
+  <br><br>
+  &nbsp;&nbsp;&nbsp;So we rolled up our sleeves, typed for long nights, then we had nice results for
+  swissroll data.
+  <br>
+  <center><img src="facecrumbs_results/swissroll.png" ></center>
+  <br>
+  We went on, and tested on some test data available in the <a href="http://isomap.stanford.edu/">Stanford Isomap
+  Matlab Toolbox</a>. This begins to look like a face manifold:
+  <center>
+  <img src="facecrumbs_results/stanford_statues_manifold.jpg"><br><br>
+  <img src="facecrumbs_results/stanford_output.gif">
+  </center>
+  <br>
+  &nbsp;&nbsp;&nbsp; At that point, everything works smoothly, we are
+  happy. Let's try it with the 13K images of
+  the <a href="http://vis-www.cs.umass.edu/lfw/">Labeled Faces in the Wild</a>
+  database.<br><br>
+  <center>
+    <a href="facecrumbs_results/lfwcrop_manifold.jpg" >
+<img src="facecrumbs_results/lfwcrop_manifold_thumbnail.jpg"><br>
+</a>
+  </center>
+  <br>
+  &nbsp;&nbsp;&nbsp; Now comes the test of
+  truth: <i>what will we get for 1M images ?</i><br><br>
+  <center>
+    <a href="facecrumbs_results/joan_PCA.jpg" >
+<img src="facecrumbs_results/joan_PCA_thumbnail.jpg"><br>
+</a>
+  </center>
+  &nbsp;&nbsp;&nbsp;If you wish to see nice animations we produced, you can have a look
+  at <a href="facecrumbs_results.html">this page</a>.
+
+  <br><br>
+
+  &nbsp;&nbsp;&nbsp;Also, not to do things half-way, we wrapped up the resulting application with a
+  fancy web interface, presented
+  in this video:<br><br>
+  <center>
+  <iframe title="YouTube video player" width="640" height="390"
+  src="http://www.youtube.com/embed/u2OHfbQcyDE?rel=0" frameborder="0"
+  allowfullscreen></iframe>
+  </center>
+  <br><br>
+
+  <h2>Going further...</h2>
+  &nbsp;&nbsp;&nbsp; The strength of a pipeline of scripts is that you can
+  easily replace a brick by another one.<br>
+  Here is a rendering of the Manifold using the "Landmark Isomap" from
+  the <a href="http://homepage.tudelft.nl/19j49/Matlab_Toolbox_for_Dimensionality_Reduction.html">Matlab
+  Toolbox for Dimensionality Reduction</a>:<br>
+    <center>
+    <a href="facecrumbs_results/1M_manifold_matlab_PCA_200.jpg" >
+<img src="facecrumbs_results/1M_manifold_matlab_PCA_200_thumbnail.jpg"><br>
+</a>
+    <br>
+    <i>the resolution is twice higher than above</i>
+  </center>
+<br>
+    <br>
+    &nbsp;&nbsp;&nbsp; Below are links to zoom renderings:<br>
+    <br>
+    <center>
+      <div class="image">
+      <a href="facecrumbs_results/output_centered_tiles_05.jpg" >
+        <img src="facecrumbs_results/output_centered_tiles_05_thumbnail.jpg"
+             style="border:1px solid black;text-decoration: none;" >
+      </a>
+      <a href="facecrumbs_results/output_centered_tiles_06.jpg" >
+        <img src="facecrumbs_results/output_centered_tiles_06_thumbnail.jpg"
+             style="border:1px solid black;text-decoration: none;" >
+      </a>
+      <br>
+      <a href="facecrumbs_results/output_centered_tiles_09.jpg" >
+        <img src="facecrumbs_results/output_centered_tiles_09_thumbnail.jpg"
+             style="border:1px solid black;text-decoration: none;" >
+      </a>
+      <a href="facecrumbs_results/output_centered_tiles_10.jpg" >
+        <img src="facecrumbs_results/output_centered_tiles_10_thumbnail.jpg"
+             style="border:1px solid black;text-decoration: none;" >
+      </a>
+      </div>
+      <br>
+      <i>look for the baby cluster in the top-left image...</i>
+    </center>
+    <br>
+
+    <br>
+    &nbsp;&nbsp;&nbsp; And <a href="http://www.doc.ic.ac.uk/~kpk09/webGL/face_manifold.html">here</a> is a 3D visualization using WebGL.<br>
+    <br><br><br>
+  
+</body>
+</html>

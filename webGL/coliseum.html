@@ -1,0 +1,46 @@
+<html>
+
+  <head>
+    <title>WebGL - Coliseum Reconstruction</title> 
+    <script src="xbps.js"></script>
+    <script src="xbPointstream.js"></script>
+ 
+  <script type="text/javascript"> 
+ 
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22283315-1']);
+  _gaq.push(['_trackPageview']);
+ 
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+ 
+  </script> 
+  </head>
+
+  <body onLoad="start('clouds/coliseum.pts','canvas',-35);"
+        style="font-family: Arial;">
+
+    <a href="http://www.doc.ic.ac.uk/~kpk09/">Back to homepage</a><br>
+    
+    <center>
+          
+<h1>Reconstruction of the Coliseum from 82 Flickr pictures</h1>
+
+      <canvas id="canvas" width="800" height="600"></canvas>
+
+      
+      <br>Invert scroll wheel: <input type="checkbox" id="invertScroll" /><br>
+<br>
+
+    This reconstruction has been made
+    using <a href="http://phototour.cs.washington.edu/bundler/">Bundler</a> and
+    82 pictures from Flickr.<br>
+For more information, see this description of a <a href="http://www.doc.ic.ac.uk/~kpk09/vision/photosynth/index.html">small project on Photosynth</a>.
+    </center>
+
+  </body>
+
+</html>

@@ -1,0 +1,126 @@
+60c60
+< {
+---
+> {     
+63d62
+<   bool* cache; // visited or not
+70a70,75
+> struct CvResult
+> {
+>   int index;  
+>   double distance;
+> };
+> 
+264d268
+<   tr->cache = (bool*)cvAlloc( sizeof(bool)*n );
+302c306
+< icvSpillTreeNodeHeapify( CvSpillTreeNode** heap,
+---
+> icvSpillTreeNodeHeapify( CvResult * heap,
+306c310
+<   if ( heap[i] == NULL )
+---
+>   if ( heap[i].index == -1 )
+309c313
+<   CvSpillTreeNode* inp;
+---
+>   CvResult inp;
+314c318
+<     if (( l < k )&&( heap[l] == NULL ))
+---
+>     if (( l < k )&&( heap[l].index == -1 ))
+316c320
+<     else if (( r < k )&&( heap[r] == NULL ))
+---
+>     else if (( r < k )&&( heap[r].index == -1 ))
+319c323
+<       if (( l < k )&&( heap[l]->mp > heap[i]->mp ))
+---
+>       if (( l < k )&&( heap[l].distance > heap[i].distance ))
+321c325
+<       if (( r < k )&&( heap[r]->mp > heap[largest]->mp ))
+---
+>       if (( r < k )&&( heap[r].distance > heap[largest].distance ))
+332c336
+< 		      CvSpillTreeNode** heap,
+---
+> 		      CvResult* heap,
+336c340,341
+< 		      const int emax )
+---
+> 		      const int emax,
+>                       bool * cache)
+340a346
+>   double distance;
+361c367
+<           if ( !tr->cache[it->i] )
+---
+>           if ( !cache[it->i] )
+363,365c369,371
+< 	    it->mp = cvNorm( it->center, desc );
+<             tr->cache[it->i] = true;
+< 	    if (( heap[0] == NULL)||( it->mp < heap[0]->mp ))
+---
+> 	    distance = cvNorm( it->center, desc );
+>             cache[it->i] = true;
+> 	    if (( heap[0].index == -1)||( distance < heap[0].distance ))
+367c373,376
+<                 heap[0] = it;
+---
+>                 CvResult  current_result;
+>                 current_result.index = it->i;
+>                 current_result.distance = distance;
+>                 heap[0] = current_result;
+378c387
+<   if (( heap[0] != NULL )&&( dist-node->r > heap[0]->mp ))
+---
+>   if (( heap[0].index != -1 )&&( dist-node->r > heap[0].distance ))
+384,385c393,394
+<       icvSpillTreeDFSearch( tr, node->lc, heap, es, desc, k, emax );
+<       icvSpillTreeDFSearch( tr, node->rc, heap, es, desc, k, emax );
+---
+>       icvSpillTreeDFSearch( tr, node->lc, heap, es, desc, k, emax, cache );
+>       icvSpillTreeDFSearch( tr, node->rc, heap, es, desc, k, emax, cache );
+387,388c396,397
+<       icvSpillTreeDFSearch( tr, node->rc, heap, es, desc, k, emax );
+<       icvSpillTreeDFSearch( tr, node->lc, heap, es, desc, k, emax );
+---
+>     icvSpillTreeDFSearch( tr, node->rc, heap, es, desc, k, emax, cache );
+>     icvSpillTreeDFSearch( tr, node->lc, heap, es, desc, k, emax, cache );
+401c410,411
+<   CvSpillTreeNode** heap = (CvSpillTreeNode**)cvAlloc( k*sizeof(heap[0]) );
+---
+>   CvResult* heap = (CvResult*)cvAlloc( k*sizeof(heap[0]) );
+>   bool* cache = (bool*)cvAlloc( sizeof(bool)*tr->total );
+405,407c415,421
+<       for ( int i = 0; i < k; i++ )
+< 	heap[i] = NULL;
+<       memset( tr->cache, 0, sizeof(bool)*tr->total );
+---
+>       for ( int i = 0; i < k; i++ ) {
+>         CvResult current;
+>         current.index=-1;
+>         current.distance=-1;
+> 	heap[i] = current;
+>       }
+>       memset( cache, 0, sizeof(bool)*tr->total );
+409,410c423,424
+<       icvSpillTreeDFSearch( tr, tr->root, heap, &es, &_desc, k, emax );
+<       CvSpillTreeNode* inp;
+---
+>       icvSpillTreeDFSearch( tr, tr->root, heap, &es, &_desc, k, emax, cache );
+>       CvResult inp;
+419c433
+< 	if ( heap[i] != NULL )
+---
+> 	if ( heap[i].index != -1 )
+421,422c435,436
+< 	    *rs = heap[i]->i;
+< 	    *dt = heap[i]->mp;
+---
+> 	    *rs = heap[i].index;
+> 	    *dt = heap[i].distance;
+426a441
+>   cvFree( &cache );
+456d470
+<   cvFree( &((*tr)->cache) );

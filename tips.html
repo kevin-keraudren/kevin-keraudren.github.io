@@ -1,0 +1,250 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+  <title>Kevin KERAUDREN - PhD tips</title>
+
+  <link type="text/css" rel="stylesheet" href="http://www.doc.ic.ac.uk/~kpk09/style.css">
+  <link type="text/css" rel="stylesheet" href="http://www.doc.ic.ac.uk/~kpk09/pygmentize.css">
+
+  <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22283315-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+  </script>
+  
+</head>
+<body>
+  <a href="http://www.doc.ic.ac.uk/~kpk09/">Back to homepage</a><br><br>
+
+<a name="thumbnailer"></a> 
+<b>DICOM/NIFTI thumbnailer in Ubuntu 12.10:</b><br>
+<br>
+Create a folder <code>~/Scripts/</code> where you will place the thumbnailer script.<br> 
+<br>
+
+The following thumbnailer script, <a href="scripts/Nifti_thumbnailer.py"><code>Nifti_thumbnailer.py</code></a> is written in Python,
+using <a href="http://www.simpleitk.org/">SimpleITK</a> and <a href="http://opencv.org/">OpenCV</a>. 
+
+<div class="hlcode">
+<div class="syntax"><pre><span class="c">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">SimpleITK</span> <span class="kn">as</span> <span class="nn">sitk</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+
+<span class="kn">from</span> <span class="nn">scipy.stats.mstats</span> <span class="kn">import</span> <span class="n">mquantiles</span>
+
+<span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">input</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+<span class="n">img</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">ReadImage</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">sitk</span><span class="o">.</span><span class="n">GetArrayFromImage</span><span class="p">(</span> <span class="n">img</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&quot;float&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="p">:</span>
+    <span class="nb">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    
+<span class="c">## Contrast-stretch with saturation</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">mquantiles</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),[</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.99</span><span class="p">])</span>
+<span class="k">if</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="c"># no error for constant intensity images</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">&lt;</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">&gt;</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">data</span> <span class="o">-=</span> <span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="n">data</span> <span class="o">/=</span> <span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="n">data</span> <span class="o">*=</span> <span class="mi">255</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;uint8&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">2</span><span class="p">,:,:,]</span>
+
+<span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+    <span class="n">new_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">size</span><span class="p">)</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">new_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">size</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="p">)</span>
+
+<span class="n">thumbnail</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span> <span class="n">data</span><span class="p">,</span><span class="n">new_size</span><span class="p">)</span>
+
+<span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">output</span><span class="o">+</span><span class="s">&quot;.png&quot;</span><span class="p">,</span><span class="n">thumbnail</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">output</span><span class="o">+</span><span class="s">&quot;.png&quot;</span><span class="p">,</span><span class="n">output</span><span class="p">)</span>
+</pre>
+</div>
+</div>
+
+<br>
+Using your sudo rights, create a file <code>nii.thumbnailer</code> in
+<code>/usr/share/thumbnailers/</code> with the following text:<br>
+<br>
+<code>
+[Thumbnailer Entry]<br>
+TryExec=/home/USERNAME/Scripts/Nifti_thumbnailer.py<br>
+Exec=/home/USERNAME/Scripts/Nifti_thumbnailer.py %s %i %o<br>
+MimeType=image/nii;image/gznii;application/dicom;<br>
+</code>
+<br>
+<br>
+<i>Notes:</i>
+<ul>
+<li>To force the regeneration of failed thumbnails:<br>
+<code>rm ~/.cache/thumbnails/fail/gnome-thumbnail-factory/*</code>
+<br></li><br>
+<li>You might need
+  to <a href="https://developer.gnome.org/integration-guide/stable/mime.html.en">add
+    a new MIME type</a> for the NIFTI format.<br>
+
+  Create the file
+ <code> ~/.local/share/mime/packages/nii.xml</code>
+  with the following content:<br>
+ <br>
+  <code>
+    &lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
+&lt;mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info"&gt;<br>
+&nbsp;    &lt;mime-type type="image/nii"&gt;<br>
+&nbsp; &nbsp;      &lt;comment&gt;NIFTI&lt;/comment&gt;<br>
+&nbsp;      &lt;glob pattern="*.nii"/&gt;<br>
+&nbsp;    &lt;/mime-type&gt;<br>
+&nbsp;    &lt;mime-type type="image/gznii"&gt;<br>
+&nbsp; &nbsp;      &lt;comment&gt;gzip-compressed NIFTI&lt;/comment&gt;<br>
+&nbsp; &nbsp;      &lt;sub-class-of type="application/x-gzip"/&gt;<br>
+&nbsp; &nbsp;      &lt;glob pattern="*.nii.gz"/&gt;<br>
+&nbsp; &nbsp;      &lt;/mime-type&gt;<br>
+&nbsp; &lt;/mime-info&gt;<br>
+</code>
+  <br>
+  then run:<br>
+  <code>update-mime-database .local/share/mime</code><br>
+  and restart <code>nautilus</code>.
+<br></li><br>
+<li>In previous versions of Ubuntu, adding a new thumbnailer was done through
+<code>gconf-editor</code> (GUI), or in command-line:<br>
+<code>
+gconftool --type=string --set "/desktop/gnome/thumbnailers/image@nii/command"
+"/home/USERNAME/Scripts/Nifti_thumbnailer.py %s %i %o"<br>
+&&<br>
+gconftool --type=bool --set "/desktop/gnome/thumbnailers/image@nii/enable" "true"
+</code>
+<br></li>
+</ul>
+<br>
+
+<b>Mailing lists:</b>
+<ul>
+  <li><a href="http://lists.diku.dk/mailman/listinfo/imageworld">Imageworld</a></li>
+  <li><a href="http://www.pythonweekly.com/">Python Weekly<a></li><br>  
+</ul>
+<br>
+
+<a name="overlay"></a> 
+<b>Overlay LATEX legend on a PNG image:</b><br>
+<br>
+Set the background and font colors of your Beamer slide:
+
+<div class="hlcode">
+<div class="syntax"><pre>
+\setbeamercolor{background canvas}{bg=black}
+\setbeamercolor{normal text}{fg=white}
+</pre></div>
+
+then do the overlay using transparency in <a href="http://www.imagemagick.org/">ImageMagick</a>:<br>
+<div class="hlcode">
+<div class="syntax"><pre>
+pdflatex legend.tex
+convert -density 400 legend.pdf -resize 1024x768 -colorspace sRGB -type TrueColorMatte -depth 8 legend.png
+convert legend.png -transparent black legend.png
+convert background.png legend.png -gravity center -composite  output.png
+</pre></div>
+<br>
+<br>
+
+<a name="video"></a> 
+<b>Create a video from PDF slides with <a href="http://www.ffmpeg.org/">ffmpeg</a> and <a href="http://www.imagemagick.org/">ImageMagick</a>:</b><br>
+<br>
+I chose to convert each slide to a single movie to easily control the time spent on each frame (<code>-t</code> option of <code>ffmpeg</code>), as well as the insertion of other movies.
+
+<div class="hlcode">
+<div class="syntax"><pre><span class="c">#!/bin/bash</span>
+
+<span class="nb">set</span> -x
+<span class="nb">set</span> -e
+
+mkdir slides
+
+<span class="c"># convert PDF ton PNG</span>
+convert -density 400 slides.pdf -resize 1024x768 -colorspace sRGB -type TrueColorMatte -depth 8 slides/slide.png
+
+<span class="nv">concat</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="k">for </span>i in <span class="o">{</span>0..14<span class="o">}</span> <span class="c"># there are 15 slides</span>
+<span class="k">do</span>
+    <span class="c"># convert PNG to MPG</span>
+    ffmpeg -qscale 1 -loop 1 -f image2 -i slides/slide-<span class="k">${</span><span class="nv">i</span><span class="k">}</span>.png  -t 2 slides/slide-<span class="k">${</span><span class="nv">i</span><span class="k">}</span>.mpg
+    <span class="nv">concat</span><span class="o">=</span><span class="nv">$concat</span><span class="s2">&quot;slides/slide-${i}.mpg|&quot;</span>
+
+    <span class="c"># insert a movie after slide 7</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$i&quot;</span> -eq <span class="s2">&quot;6&quot;</span> <span class="o">]</span>
+    <span class="k">then</span>
+<span class="k">        </span><span class="nv">concat</span><span class="o">=</span><span class="nv">$concat</span><span class="s2">&quot;inserted_movie.mpg|&quot;</span>
+    <span class="k">fi</span>
+<span class="k">     </span>
+<span class="k">done</span>
+
+<span class="c"># remove last character</span>
+<span class="nv">concat</span><span class="o">=</span><span class="k">${</span><span class="nv">concat</span><span class="p">%?</span><span class="k">}</span>
+
+<span class="c"># concatenate all videos</span>
+ffmpeg -qscale 1 -i concat:<span class="s2">&quot;${concat}&quot;</span>  all.mpg
+
+<span class="c"># convert video format</span>
+ffmpeg -i all.mpg -qscale 1 all.mp4
+ffmpeg -i all.mpg -s 512x384 -qscale 1 all_resized.mp4
+</pre></div>
+Example video: <a href="http://www.doc.ic.ac.uk/~kpk09/MICCAI-451.mp4">MICCAI 2013 suplementary material</a>.
+<br>
+<br>
+<i>Notes:</i>
+<ul>
+  <li> Videos can be integrated in Latex Beamer presentations with the
+  multimedia package. The resulting PDF works in Okular, but not
+  in Evince. Details can be found Chapter 14 of
+  the <a href="http://www.tex.ac.uk/ctan/macros/latex/contrib/beamer/doc/beameruserguide.pdf">Beamer
+  user guide</a>.</li>
+</ul>
+<br>
+<b>Shell prompt</b>
+<ul>
+  <li>bash (.bashrc): <code>PS1="\[\033[1;30m\][\$?]<\[\033[1;35m\]\u\[\033[1;30m\]>{\$(date +%d-%m\" \"%H:%M)}[\w]\[\033[0m\] "</code>
+    </li>
+  <li>tcsh (.cshrc): <code>set prompt="%{\033[1;30m%}[%?]<%{\033n@[1;35m%}m%{\033[1;30m%}>{%D-%W %T}{\033\[0m[%~]} "</code>
+    </li>
+ </ul>
+<br>
+<a name="rview_nautilus"></a>
+<b>Open NIFTI files with rview from nautilus (Ubuntu 12.10)</b><br> 
+<br>
+<code>sudo gedit /usr/share/applications/defaults.list</code><br> 
+add the line:<br>
+<code>image/nii=rview.desktop</code><br>
+then create a file referencing rview:<br> 
+<code>sudo gedit /usr/share/applications/rview.desktop</code><br>
+<br> 
+<code>
+[Desktop Entry]<br> 
+Encoding=UTF-8<br> 
+GenericName=IRTK Viewer<br> 
+Name=rview<br> 
+Exec=/home/kevin/Imperial/PhD/irtk/build/bin/rview %F<br> 
+TryExec=/home/kevin/Imperial/PhD/irtk/build/bin/rview<br> 
+Type=Application<br> 
+Terminal=false<br> 
+Categories=Education;Graphics;Science;DataVisualization;MedicalSoftware;Viewer;<br> 
+Icon=/home/kevin/Imperial/PhD/irtk/icons/IRTK.ico<br> 
+</code>
+</body>
+</html>

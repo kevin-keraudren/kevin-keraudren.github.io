@@ -1,0 +1,15 @@
+body {
+    text-align: left;
+    font-family: Arial;
+    width: 75%;
+    margin: 10px auto 10px auto;
+    position: relative;
+    // background-color: #ddddcc;
+    background: #ffffff;
+    //background: #ddf6e4;
+    text-decoration: none;
+}
+
+.image {
+    font-size: 0px;
+    }
